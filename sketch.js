@@ -1,17 +1,20 @@
 let timer = 0;
+let button;
 canvasSize = [400, 450];
 gameSize = [400, 400];
 gameOffset = [0, 50];
-var gridX = 10;
-var gridY = 10;
+var gridX = 16;
+var gridY = 16;
 var sizing = gameSize[0] / gridX; // the amount of pixels per tile
 var refresh = 0.25 // in seconds
 const snake = [3, 2, 1]; // stores the position of each part of the snake
 var apple = 25;
 var appleColor = [255, 0, 0];
 var snakeColor = [0, 0, 255];
-var right = [1, 0]; var left = [-1, 0];
-var up = [0, -1]; var down = [0, 1];
+var right = [1, 0]; 
+var left = [-1, 0];
+var up = [0, -1]; 
+var down = [0, 1];
 var direction = right // starts as right
 var quickDraw = false;
 var queue = 0;
@@ -62,7 +65,7 @@ function makeApple()
   while (going)
     {
       going = false;
-      newApple = Math.floor(Math.random() * (gridX * gridY))
+      newApple = Math.floor(Math.random() * ((gridX * gridY) - 1))
       if (snake.includes(newApple))
         {
           going = true;
@@ -113,11 +116,23 @@ function moveSnake()
 function setup() 
 {
   createCanvas(canvasSize[0], canvasSize[1]);
-  noStroke();
+  //noStroke();
+}
+
+function mousePressed()
+{
+  if (mouseX > 0 && mouseX < canvasSize[0] && mouseY > 0 && mouseY < canvasSize[1] && !fullscreen())
+    {
+      fullscreen(true);
+    }
 }
 
 function keyPressed()
 {
+  if (keyCode === ESCAPE && fullscreen())
+    {
+      fullscreen(false);
+    }
   if (keyCode === LEFT_ARROW && direction != right)
   {
     direction = left;
@@ -138,13 +153,27 @@ function keyPressed()
     direction = up;
     quickDraw = true;
   }
+  if (key == ' ' && gameLoop == false)
+    {
+      snake.length = 0;
+      snake[0] = 3; snake[1] = 2; snake[2] = 1;
+      score = 0;
+      queue = 0;
+      makeApple();
+      direction = right;
+      gameLoop = true;
+    }
 }
 
 function draw() 
 {
-  background(0);
+  // DRAW GUI
+  background(color(0, 255, 150));
   fill(color(255, 255, 255));
   rect(gameOffset[0], gameOffset[1], gameSize[0], gameSize[1]);
+  textSize(40); textStyle(ITALIC); textAlign(LEFT);
+  var scoreToDisplay = "Score: " + score;
+  text(scoreToDisplay, 8, 38);
   // DRAW SNAKE
   for (let i = 0; i < snake.length; i++)
     {
@@ -177,7 +206,7 @@ function draw()
       square(0, 0, 1000);
       fill(0, 0, 0);
       textSize(32); textStyle(BOLD); textAlign(CENTER);
-      textToDisplay = "Your score was: " + score + "\nPlay again?";
+      var textToDisplay = "Your score was: " + score + "\nPress space to play again.";
       text(textToDisplay, canvasSize[0] * 0.5, canvasSize[1] * 0.5);
       
     }
